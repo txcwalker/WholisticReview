@@ -1,0 +1,66 @@
+/*css for the text and non dynamic page elements*/
+
+/* Apply a flexbox layout to the entire content area */
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* Set a minimum height for the content area */
+    font-family: sans-serif;
+}
+
+main{
+    max-width: 75%;
+    margin: auto;
+    padding: 20px;
+}
+
+h2{
+    margin-top: 1.5%;
+}
+
+h1, h2 {
+    text-align: center; /* Center the header tags */
+    margin-bottom: 10px; /* Add space between headers */
+}
+
+p {
+    font-size: 16px; /* Set the desired font size for paragraphs */
+    line-height: 1.5; /* Adjust the line height as needed */
+    margin-top: 10px; /* Add space between h2 and p */
+}
+
+/* centering the equations for html*/
+.centered-text{
+text-align: center;
+}
+
+/*Table Styling*/
+table {
+  border-collapse: collapse;
+  width: 70%;
+  margin: 20px auto; /* Center the table */
+}
+
+th, td {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+
+th {
+  background-color: #f2f2f2;
+}
+
+.decision-tree-pic{
+width: 500px; /* Adjust the width as needed */
+display: block;
+margin: auto;
+}
+
+/* image tags css */
+img {
+    display: block;
+    margin: 0 auto;
+    margin-top: 2%;
+    margin-bottom: 2%;
+}

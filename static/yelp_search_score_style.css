@@ -1,0 +1,74 @@
+/*css for the text and non dynamic page elements*/
+
+/* Apply a flexbox layout to the entire content area */
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* Set a minimum height for the content area */
+    font-family: sans-serif;
+}
+
+main{
+    max-width: 75%;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+h1, h2 {
+    text-align: center;
+    margin-bottom: 1%;
+}
+
+h2{
+    margin-top: 2%;
+}
+
+h2, h3, h4 {
+  margin-top: 20px;
+}
+
+p {
+    font-size: 16px;
+    line-height: 1.5;
+    margin-top: 1%;
+    margin-bottom: 1%;
+}
+
+/* centering the equations for html*/
+.centered-text{
+text-align: center;
+}
+
+/*Table Styling*/
+table {
+  border-collapse: collapse;
+  width: 70%;
+  margin: 2% auto;
+}
+
+th, td {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+
+th {
+  background-color: #492E87; /* #f2f2f2 */
+}
+
+tr{
+    background-color: #f2f2f2; /* #37B5B6 */
+}
+
+.color-text-red {
+    color: #FF0000;
+}
+
+.color-text-green {
+    color: #00FF00;
+}
+
+.color-text-purple {
+    color: #800080;
+}
+

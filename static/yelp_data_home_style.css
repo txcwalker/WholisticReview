@@ -1,0 +1,52 @@
+/* Specific styles for elements in YelpDataHome.html */
+/* Apply a flexbox layout to the entire content area */
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* Set a minimum height for the content area */
+    font-family: sans-serif;
+}
+
+main{
+    max-width: 65%;
+    margin: 0 auto;
+    padding: 3%px;
+}
+
+h1, h2 {
+    text-align: center; /* Center the header tags */
+    margin-bottom: 1%; /* Add space between headers */
+    margin-top: 2%;
+}
+
+p {
+    font-size: 16px; /* Set the desired font size for paragraphs */
+    line-height: 1.5; /* Adjust the line height as needed */
+    margin-top: 1%; /* Add space between h2 and p */
+}
+
+/* Apply styles to the table */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 2%px;
+    margin-bottom: 1.5%;
+}
+
+th, td {
+    border: 1px solid #ddd;
+    padding: 1%px;
+    text-align: left;
+}
+
+th {
+    background-color: #f2f2f2; /* Gray background for table headers */
+}
+
+td{
+background-color: #c0c0c0;
+}
+
+
+
+

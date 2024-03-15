@@ -1,0 +1,42 @@
+{% extends '_base.html' %}
+{% block title %}About Us{% endblock %}
+{% block content %}
+<head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='_about_style.css')}}">
+</head>
+
+<body>
+    <main>
+        <h1>About Us</h1>
+
+        <h2>Our Mission</h2>
+
+            <p>The world is full of issues that need to be addressed. Everything matters to someone, we just want to do
+                our part to help provide solutions for those who need assistance </p>
+
+        <h2>Our Method</h2>
+
+        <ul>
+            <li>We take a wholistic approach, numbers are just numbers. We assign them value. The analysis is only half
+                the battle. Interpreting the data requires an understanding of how and why we arrived at the end product.
+                Only then can actionable advice be given.</li>
+            <li>We treat data the same way you act in your grandmother's bridge game, respectful, thankful for the
+                opportunity and everything stays at the table. </li>
+        </ul>
+
+        <h2>Our Values</h2>
+
+        <ul>
+            <li>Simplicity: </li>
+            <li>Creativity: Originality sparks progress</li>
+            <li>Community: Growth requires collaboration</li>
+            <li>Integrity: We promise data will never be sold</li>
+            <li>Patience: It is impossible, until it isn’t</li>
+            <li>Curiosity: Ask, Act, Assess, Again</li>
+            <li>Accountability: You cannot always be right but you can always learn from your actions</li>
+        </ul>
+
+    </main>
+
+</body>
+{% endblock %}

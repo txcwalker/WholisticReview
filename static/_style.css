@@ -1,0 +1,90 @@
+/* Color Palette from colorhunt.co main: 0A1D56, secondary: #492E87, accent: 37B5B6, highlight: #F2F597  */
+/*  https://colorhunt.co/palette/0a1d56492e8737b5b6f2f597 */
+/* navbar */
+.navbar {
+    font-size: 20px;
+    padding: 1%;
+    color: #000000;
+    background-color: #492E87; /* #6495ED, #0000CD, #4169E1*/
+    display: block;
+}
+
+/* settings on hover */
+.navbar ul li a:hover {
+    background-color: #F2F597;/* #ff7f50, */
+    color: #000000;
+
+}
+
+/* dropdown menu */
+.navbar ul li ul {
+    position: absolute;
+    left: 0;
+    width: 200px;
+    background-color: #492E87; /* Set the background color for the dropdown menu */
+    color: #000000;
+    display: none;
+    font-size: 16px;
+}
+
+/* dropdown menu items*/
+.navbar ul li ul li{
+    width: 100%;
+    color: #000000;
+    border-top: 1px solid rgba(0,0,0,.1);
+}
+
+/* second level dropdown menu*/
+.navbar ul li ul li ul{
+    left: 200px;
+    color: #000000;
+    top: 0px;
+    display: none;
+}
+
+/* Show dropdown on parent hover */
+.navbar ul li:hover > ul {
+    display: block;
+    color: #000000;
+}
+
+/* show second level dropdown on hover */
+.navbar ul li ul li:hover > ul {
+    display: block;
+    color: #000000;
+}
+
+/* show dropdown on focus styles */
+.navbar ul li:focus-within > ul,
+/*body .navbar ul li:hover > ul,*/
+body .navbar ul li ul li:hover > ul,
+body .navbar ul li ul li:focus-within > ul {
+    display: initial;
+    color: #000000;
+}
+
+body{
+    background-color: #0A1D56;/*#404040, #4169E1*/
+    color: #ffffff;
+    margin: auto;
+}
+
+/* footer */
+footer {
+    text-align: center;
+    position: relative;
+    bottom: 0;
+    width: 100%;
+    color: #ffffff;
+}
+
+/* font awesome icon settings (placed in footer) */
+.social-media {
+    margin-top: 2%;
+}
+
+.social-media a {
+    color: #ffffff; /* Change color as needed */
+    font-size: 24px;
+    margin-right: 1%; /* Add space between icons */
+}

@@ -1,0 +1,69 @@
+{% extends '_base.html' %}
+{% block title %}Heat Map Tool{% endblock %}
+{% block content %}
+    <head>
+        <link rel="stylesheet" href="{{ url_for('static', filename='yelp_heat_map_tool_style.css')}}">
+    </head>
+
+    <body>
+        <main>
+
+            <h1>Heat Map Tool</h1>
+
+            <p>Welcome to the Heat Map Tool! Curious how restaurants are distributed across the city? Select any city from the below dropdown and
+               choose from any variable in the adjacent list to view how restaurants are found throughout the selected
+               city based on selected variable!</p>
+
+
+            <div class = "graph-container">
+                <div class = "form-section">
+                    <div  class = "form-elements">
+                        <form method="post" action="/YelpData/heat_map_tool">
+                            <label for="target_city">Select City:</label>
+                            <select name="target_city">
+                                {% for city in cities %}
+                                    <option value="{{ city }}">{{ city }}</option>
+                                {% endfor %}
+                            </select>
+
+                            <label for="target_variable">Select Variable:</label>
+                            <select name="target_variable">
+                                <option value="review_count">Review Count</option>
+                                <option value="price">Price</option>
+                                <option value="rating">Rating</option>
+                            </select>
+
+                            <input type="hidden" name="form_type" value="update_map">
+
+                            <button type="submit" style="margin-top: 20px;">Update Map</button>
+                        </form>
+
+                        <div id="plotly-map"></div>
+                    </div>
+                </div>
+            </div>
+
+            <script>
+                const form = document.querySelector('form');
+                const graphContainer = document.getElementById('plotly-map');
+
+                form.addEventListener('submit', async function (event) {
+                    event.preventDefault();
+
+                    const formData = new FormData(form);
+                    const response = await fetch('/YelpData/heat_map_tool', { method: 'POST', body: formData });
+
+                    if (response.ok) {
+                        const mapData = await response.json();
+                        Plotly.react('plotly-map', mapData);
+
+                        // Adjust margin based on whether the graph is present
+                        graphContainer.style.marginBottom = mapData ? '5px' : '20px';
+                    } else {
+                        console.error("Error in response:", response);
+                    }
+                });
+            </script>
+        </main>
+    </body>
+{% endblock %}

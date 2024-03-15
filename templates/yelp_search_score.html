@@ -1,0 +1,542 @@
+{% extends '_base.html' %}
+{% block title %}Search Score{% endblock %}
+{% block content %}
+    <head>
+        <link rel="stylesheet" href="{{ url_for('static', filename='yelp_search_score_style.css')}}">
+    </head>
+
+    <body>
+
+        <main>
+
+            <h1>Search Score</h1>
+
+            <p>Search score was created to try and best represent how Yelp display search results on its recommended
+                search setting.</p>
+
+            <h2>How does the most recommended search functionality on Yelp work?</h2>
+
+            <p>Yelp has come out and said they will not release the exact ins and outs of how their search functionality
+                works and for good reason. To their point and credit, releasing the algorithm would nullify its purpose.
+                People would be able to game the system and submit reviews that are designed to best suit the algorithm
+                and not an honest opinion of the experience.</p>
+
+            <p>While this is a good decision for many reasons it does leave
+                some gaps in how the recommendation process works. Attempting to recreate the algorithm can open up the
+                possibility to better understand how an individual user can best assess if the recommendation is right
+                for them.</p>
+
+            <h2>Data Constraints and Variable Rundown</h2>
+
+            <h3>Data Constraints:</h3>
+
+            <p>The Yelp API like most if not all APIs limits the amount of times it can be “called”
+                (data can be retrieved) in 24 hours. By data standards a relatively limited amount can be called per
+                day. About 5000 observations a day, which seems like a lot, however after cleaning the data
+                (removing observations with: less than x reviews, missing important data, duplicates, irrelevant data,
+                etc etc) the number of clean observations obtained a day comes down significantly. After collecting data
+                over the combined time span of 6 weeks there are only about 80,000 total observations. This is a small
+                percentage of the total observations that yelp uses to make their recommendation algorithm. This means
+                not every restaurant on Yelp is in this data set including some of the most popular, highly reviewed/rated
+                restaurants in every city.</p>
+
+            <p>The goal in reconstruction is to get something that is a rough draft of the actual algorithm. There is
+                simply not enough data to perfectly or even approximately recreate the search algorithm. But getting the
+                intuition behind the algorithm can help the end user determine if the recommendation is right for them.
+            </p>
+
+            <h3>Variables:</h3>
+
+            <p>There are many variables to choose from and plenty more that would be useful but are inaccessible. This
+                is just a rough approximation and it should be simple in its recreation so in this case the algorithm
+                should ideally be as few variables as possible. At its core Yelp is a crowd sourcing platform to find
+                the best business in an area given a set of parameters. If this is true then the most important
+                components of this algorithm and even Yelp’s algorithm should be the variables defined by its users,
+                namely Rating and Reviews. </p>
+
+            <p> <b>Number of Reviews</b> - How many reviews an individual business (restaurant in this case) has received.
+                Presumably the reviews are monitored by Yelp and any obviously fake/bot reviews (overtly positive or
+                negative) are removed and not considered in any way by any part of the process on Yelp. </p>
+
+            <p><b>Rating</b>- On the yelp search page this a number of form X.X in a range from 1 to 5 with 1.0 being
+                worst and 5.0 being best. Data received from the API limits the output to being whole numbers and their
+                halves. For Example 4.2 is rounded down to 4 and 4.3 is rounded up to 4.5. This is a massive loss of
+                information especially considering its importance to any search algorithm</p>
+
+            <h2>Creating the metric</h2>
+
+            <p>What goes into a recommendation? Quality. Anything of bad or low quality often is not going to get
+                recommended at all. So how can quality be measured? Luckily the question is answered easily by the 1-5
+                rating scale utilized by Yelp. It is an all in one quality evaluator. Sure it would be better if there
+                were separate scales for food, service, drinks, ambiance, timeliness, etc etc etc. But that would be
+                much more complicated and the amount of reviews would be significantly reduced. Way fewer people would
+                be likely to leave reviews and those who did who knows how far they would get taking things seriously.
+                This 1 - 5 measure is the cornerstone in the attempt to recreate the recommendation algorithm. </p>
+
+            <p>Is there a way to verify the quality? Yes and relatively easily as well. Reviews!  This is the beauty of
+                Yelp (In case you have not figured it out by now Yelp is a combination of the words “You” and “Help”).
+                Each review left adds to the collective knowledge of parties which normally would not be in communication
+                with each other. They come together to create a database of information/knowledge to tell each other
+                which businesses (restaurants in this case) have the highest quality. The more people who leave reviews
+                the more accurate the assessment of quality (rating) becomes</p>
+
+            <p>This is going to be a price agnostic algorithm,  if price is a concern it can be filtered out of the
+                search easily. Price has no impact on quality. Things can be priced higher because they are high quality
+                but just because something is high-priced does not make it high quality and just because something is
+                low-priced does not make it low quality. </p>
+
+            <p>But now there is a bit of a problem. The range of rating is from 1 to 5. However the range for Number of
+                reviews is much wider. From 5 to theoretically infinite but in practice 100,000. This is not great. As
+                the number of reviews increases it is going to become more and more impactful because rating has an
+                upper limit of 5. In the most basic application of an algorithm where rating and reviews are multiplied
+                together.</p>
+
+            <div class = 'centered-text'>
+            <p>Recommendation Score = Rating * Number of Reviews</p>
+            </div>
+
+            <p>Imagine these two examples </p>
+
+            <div class = 'centered-text'>
+            <p>Recommendation Score 1 = 5 * 50 = 250</p>
+
+            <p>Recommendation Score 2 = 4 *100 = 400</p>
+            </div>
+
+            <p>Even though Restaurant 2 has a whole point lower (20% worse) than restaurant 1 it has a significantly
+                higher Recommendation Score. This is obviously not great. There is definitely a difference between 50
+                and 100 reviews but is it enough to warrant a 60% increase in recommendation score when restaurant 2
+                has a worse rating than restaurant 1? No, almost certainly not. So the playing field needs to be leveled.
+                In math this is called scaling. Both numbers need to be on approximately the same scale. But how?</p>
+
+            <p>The solution is actually relatively simple. Ideally the following needs to happen</p>
+
+            <div class = 'centered-text'>
+            <p>Some Number —> ??? —> Smaller version of Number</p>
+            </div>
+
+            <p>Where each number is scaled relative to its original size. For example think about two restaurants one
+                with 30 Reviews the other with 1000. If both are divided by 500 this does not scale the numbers evenly.
+                Those 30 Reviews are essentially meaningless whether adding to or multiplying by rating. In fact in this
+                case 30 reviews actually hurts the restaurant they are associated with because it comes to being much
+                less than 1 and the Recommendation Score is going to get smaller than the initial rating. So this is not
+                viable.</p>
+
+            <p>Luckily there is a well known function that does all of the work. If you know math this probably came to
+                mind quickly. If you do not know math, hang in there and do not be scared! The best way to scale these
+                number of reviews easily, simply and efficiently is to use a log function. There are many different log
+                functions, this algorithm is going to use the natural log. Do not worry about how this works or why.
+                Just know that it does. Numbers go into the function and smaller numbers come out. The table below
+                provides some relevant examples</p>
+
+            <h4 class = 'centered-text'>Natural Log (ln(x))</h4>
+
+              <table>
+                <tr>
+                  <th>Input</th>
+                  <th>Output</th>
+                </tr>
+                <tr>
+                  <td>1</td>
+                  <td>0</td>
+                </tr>
+                <tr>
+                  <td>10</td>
+                  <td>2.302585</td>
+                </tr>
+                <tr>
+                  <td>100</td>
+                  <td>4.605170</td>
+                </tr>
+                <tr>
+                  <td>1000</td>
+                  <td>6.907755</td>
+                </tr>
+              </table>
+
+            <p>Now that the scaling has been applied The Recommendation algorithm is:</p>
+
+            <p class = 'centered-text'>Recommendation Score = rating * ln(Number of Reviews)</p>
+
+            <p>Is that it? Well not quite. As mentioned before, quality is the most important part of any
+                recommendation. Restaurants of high quality should be rewarded and in an ideal world the restaurants of
+                the highest quality would be rewarded more than restaurants of mediocre or even high quality. Again
+                luckily thanks to math there is a relatively easy way to do this. If the rating is multiplied by itself
+                (squared) the restaurant rating scales off itself. This system rewards restaurants of higher quality
+                more than those of worse. See the chart below for a representation of this scale.</p>
+
+            <table>
+                <tr>
+                  <th>x</th>
+                  <th>x<sup>2</sup></th>
+                </tr>
+                <tr>
+                  <td>1</td>
+                  <td>1</td>
+                </tr>
+                <tr>
+                  <td>1.5</td>
+                  <td>2.25</td>
+                </tr>
+                <tr>
+                  <td>2</td>
+                  <td>4</td>
+                </tr>
+                <tr>
+                  <td>2.5</td>
+                  <td>6.25</td>
+                </tr>
+                <tr>
+                  <td>3</td>
+                  <td>9</td>
+                </tr>
+                <tr>
+                  <td>3.5</td>
+                  <td>12.25</td>
+                </tr>
+                <tr>
+                  <td>4</td>
+                  <td>16</td>
+                </tr>
+                <tr>
+                  <td>4.5</td>
+                  <td>20.25</td>
+                </tr>
+                <tr>
+                  <td>5</td>
+                  <td>25</td>
+                </tr>
+              </table>
+            <p>That is it! This is the very rough, very simple approximation of a recommendation algorithm for Yelp.</p>
+
+            <p class = 'centered-text'>Recommendation Score = Rating<sup>2</sup> * ln(Number of Reviews)</p>
+
+            <p>As previously mentioned this is a very rough approximation of how any recommendation algorithm would
+               look. It takes two variables into account; quality and the verification of quality. Both of which are
+               crowd sourced by hundreds or thousands of different people.  It is objective and stabilizes quickly. It
+               is by no means perfect but is a good place to start to evaluate restaurants objectively.</p>
+
+            <h2>Evaluation</h2>
+
+            <p>Lets evaluate the model by looking at some examples. Several zip codes were researched in the evaluation
+                process. Below is a chart of Downtown LA, 90013. The Data set has 28 observations from it and the Yelp
+                search about 100 results. So not every entry in the Yelp search is in the data but everything in the
+                data is in the Yelp search. So how did the model do? Below is a summary and a comparison of the Yelp’s
+                top ten and the model’s top ten.</p>
+
+            <h3>Example:</h3>
+
+            <table>
+                <tr>
+                  <th>Zip Code</th>
+                  <th>City</th>
+                  <th>Top Ten Percentage</th>
+                </tr>
+                <tr>
+                  <td>90013</td>
+                  <td>Downtown LA</td>
+                  <td>10%</td>
+                </tr>
+            </table>
+
+            <h4 class = 'centered-text'>Yelp Top Ten</h4>
+
+            <table>
+                <tr>
+                  <th>Restaurant</th>
+                  <th>Rating</th>
+                  <th>Reviews</th>
+                  <th>Score</th>
+                </tr>
+                <tr>
+                  <td>Kaminari Gyoza Bar</td>
+                  <td>4.8</td>
+                  <td>123</td>
+                  <td>110.8727275</td>
+                </tr>
+                <tr class = 'color-text-purple'>
+                  <td>Marugame Monzo</td>
+                  <td>4.4</td>
+                  <td>4700</td>
+                  <td>163.6949524</td>
+                </tr>
+                <tr class = 'color-text-red'>
+                  <td>Tsuujita Artisan Noodle - Arts District</td>
+                  <td>4.5</td>
+                  <td>12</td>
+                  <td>50.31935966</td>
+                </tr>
+                <tr class = 'color-text-purple'>
+                  <td>Rice and Nori</td>
+                  <td>4.4</td>
+                  <td>751</td>
+                  <td>128.1904134</td>
+                </tr>
+                <tr>
+                  <td>Spitz - Little Tokyo</td>
+                  <td>4.0</td>
+                  <td>1800</td>
+                  <td>119.9286711</td>
+                </tr>
+                <tr>
+                  <td>Pi LA</td>
+                  <td>4.7</td>
+                  <td>124</td>
+                  <td>106.4800198</td>
+                </tr>
+                <tr class = 'color-text-red'>
+                  <td>Suehiro DTLA</td>
+                  <td>4.8</td>
+                  <td>60</td>
+                  <td>94.33369871</td>
+                </tr>
+                <tr class = 'color-text-red'>
+                  <td>Tokyo Haus</td>
+                  <td>4.4</td>
+                  <td>13</td>
+                  <td>49.65741956</td>
+                </tr>
+                <tr class = 'color-text-green'>
+                  <td>Wurstkuche</td>
+                  <td>4.2</td>
+                  <td>9000</td>
+                  <td>160.6118447</td>
+                </tr>
+                <tr class = 'color-text-purple'>
+                  <td>Pasta e Pasta by Allegro</td>
+                  <td>4.4</td>
+                  <td>1400</td>
+                  <td>140.2482447</td>
+                </tr>
+            </table>
+
+            <p>The Green Highlighted observation is what both models agree on, the purple highlighted observations are
+               ones that would be in the models top ten if they were in the data set and red highlighted observations
+               are red flags.</p>
+
+            <h4 class = 'centered-text'>Model Top Ten</h4>
+
+            <table>
+                <tr>
+                  <th>Name</th>
+                  <th>Rating</th>
+                  <th>Reviews</th>
+                  <th>Score</th>
+                </tr>
+                <tr>
+                  <td>Maccheroni Republic</td>
+                  <td>4.5</td>
+                  <td>4027</td>
+                  <td>168.09</td>
+                </tr>
+                <tr>
+                  <td>KazuNori DTLA</td>
+                  <td>4.5</td>
+                  <td>3427</td>
+                  <td>164.82</td>
+                </tr>
+                <tr>
+                  <td>Bavel</td>
+                  <td>4.5</td>
+                  <td>2451</td>
+                  <td>158.04</td>
+                </tr>
+                <tr>
+                  <td>Guisados DTLA</td>
+                  <td>4.5</td>
+                  <td>2115</td>
+                  <td>155.05</td>
+                </tr>
+                <tr>
+                  <td>Girl and The Goat - Los Angeles</td>
+                  <td>4.5</td>
+                  <td>1685</td>
+                  <td>150.45</td>
+                </tr>
+                <tr>
+                  <td>Perch</td>
+                  <td>4.0</td>
+                  <td>10234</td>
+                  <td>147.73</td>
+                </tr>
+                <tr>
+                  <td>Wurstkuche</td>
+                  <td>4.0</td>
+                  <td>9025</td>
+                  <td>145.72</td>
+                </tr>
+                <tr>
+                  <td>Eggslut</td>
+                  <td>4.0</td>
+                  <td>6429</td>
+                  <td>140.30</td>
+                </tr>
+                <tr>
+                  <td>Prince Street Pizza</td>
+                  <td>4.5</td>
+                  <td>804</td>
+                  <td>135.46</td>
+                </tr>
+                <tr>
+                  <td>Yunomi Handroll</td>
+                  <td>4.5</td>
+                  <td>536</td>
+                  <td>127.25</td>
+                </tr>
+            </table>
+
+           <p>Unfortunately this is not a one-off occurrence. This was the case for all of the zip codes researched.
+               Below is the same search functionality used to create the model’s top ten list. Go ahead and select any
+               zip code from the dropdown and compare it to the Yelp Results. Obviously not every zip code was checked.
+               There are over 2000 of them in the data set and if the researched ones are the outliers then that is great!
+           </p>
+
+           <h3>Conclusions</h3>
+
+           <p>So where did the model go wrong? It is only getting two pieces of information versus the tens if not
+               hundreds the Yelp algorithm uses. Of the two pieces of information it is getting one of them (the one more
+               heavily weighted in the model) has significant information loss because it is rounded (no idea why it is
+               still transmitting the same amount of information one place past the decimal). </p>
+
+           <p>Could the log function and/or exponent be changed to more accurately represent the interaction and
+               relationship between rating and number of reviews? Yes probably, and while this would improve the model
+               it would not explain the huge differences by itself. </p>
+
+           <p>The biggest place of improvement for the model is the number of review itself. After a certain amount of
+               reviews there is going to be no real change in the restaurants rating. So there is probably some critical
+               mass of reviews where for the sake of the math they are irrelevant. What new information is being
+               communicated from review 1000 to 2000 or 3000 to 5000. So where is that critical mass point? Is it 100?
+               500? 1000? Some random number like 734 or 1472? It is hard to say, in reality it is probably different
+               for every restaurant and it would depend on the log function being used. Some generalization should be
+               made, maybe at 1000 but more research would be required to know. With all of this being said it is possible
+               that the excess reviews are communicating something outside of the rating. For example maybe the restaurant
+               has a unique concept which makes the experience one of a kind? Or perhaps this is the first/only restaurant
+               of a certain cuisine in a city and while the rating is stable it is something worth trying.</p>
+
+           <p>So the model certainly has its flaws between its simplicity, information loss and over indexing in reviews.
+               However, the reviews are not insignificant and as discussed previously they are verification of quality.
+               So how is it that in the top ten for one of many zip codes in Downtown Los Angeles there are three
+               restaurants with less than 60 reviews and two with less than 15?</p>
+
+           <p>Are some reviews worth more than others? Are these reviews done by top restaurant critics and so they
+               stabilize faster? Does location of the search or location of the zip code influence the type of restaurant
+               that will show up in searches? For example part of this zip code is an area known as Little Tokyo so are
+               Japanese restaurants more likely to populate? Are the searches taking into account data from the user's
+               computer? For example when these searches were run across multiple accounts and web browsers different
+               results were seen. There is no guarantee that the person running the Yelp search is the same person who
+               uses the device the majority of the time. Accounts/computers are often shared between families, kids,
+               couples, roommates, companies, etc etc. Is there a point where a review is no longer used in the algorithm.
+               For example if a review was left longer than x years ago is it disregarded by the algorithm? If so then
+               why does it still show on the site if it is not being used? Is there marketing being taken into account
+               by the search? Are these three restaurants prolific advertisers on social media or elsewhere which is being
+               taken into account by the algorithm. A most recommended list should surely be agnostic of advertising and
+               marketing; of course the restaurant is going to recommend eating at their restaurant. If this is being
+               taken into account the algorithm is in no way objective. </p>
+
+           <p>Both algorithms have their strengths and weaknesses. Clearly neither is perfect and both are in need of
+               improvement which makes sense, it is difficult to quantify human preferences when each of us has a
+               slightly different opinion. The best algorithm probably lies somewhere in between the ultra simple model
+               created here and the far more complex version Yelp has been using.</p>
+
+             <!-- Add the HTML code with the corrected form and table structure -->
+            <h2>Top 10 Restaurants</h2>
+            <form method="post" action="/YelpData/search_score" id="searchForm">
+                <label for="zipCode">Select Zip Code:</label>
+                <select id="zipCode" name="target_zip_code">
+                    {% for zip_code in zip_codes %}
+                    <option value="{{ zip_code }}">{{ zip_code }}</option>
+                    {% endfor %}
+                </select>
+                <input type="submit" value="Submit">
+            </form>
+
+            <!-- Add an empty table body with an id for JavaScript to update -->
+            <div id="tableContainer">
+                <table id="dataTable" border="1">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Rating</th>
+                            <th>Reviews</th>
+                            <th>Search Score</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        <!-- Table rows will be dynamically added here -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Add the JavaScript code to handle dynamic updates -->
+            <script>
+                document.getElementById("searchForm").addEventListener("submit", function (event) {
+                    event.preventDefault(); // Prevent the default form submission behavior
+                    updateTable();
+                });
+
+                function updateTable() {
+                    console.log("Update table function called");
+                    var zipCode = document.getElementById("zipCode").value;
+
+                    // Send a POST request to the server to get filtered data
+                    fetch('/YelpData/search_score', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                            'X-Requested-With': 'XMLHttpRequest'  // Make sure to include this header for AJAX requests
+                        },
+                        body: 'target_zip_code=' + zipCode,
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        // Update the table with the received data
+                        var tableContainer = document.getElementById("tableContainer");
+                        tableContainer.innerHTML = ""; // Clear existing table content
+
+                        // Create a new table and append it to the container
+                        var table = document.createElement("table");
+                        table.id = "dataTable";
+                        table.border = 1;
+
+                        // Create table header
+                        var thead = document.createElement("thead");
+                        thead.innerHTML = `
+                            <tr>
+                                <th>Name</th>
+                                <th>Rating</th>
+                                <th>Reviews</th>
+                                <th>Search Score</th>
+                            </tr>
+                        `;
+                        table.appendChild(thead);
+
+                        // Create table body
+                        var tbody = document.createElement("tbody");
+                        data.data.forEach(row => {
+                            var tr = document.createElement("tr");
+                            tr.innerHTML = `
+                                <td>${row.name}</td>
+                                <td>${row.rating}</td>
+                                <td>${row.review_count}</td>
+                                <td>${row.search_score}</td>
+                            `;
+                            tbody.appendChild(tr);
+                        });
+                        table.appendChild(tbody);
+
+                        // Append the new table to the container
+                        tableContainer.appendChild(table);
+                    })
+                    .catch(error => console.error("Error:", error));
+                }
+
+            </script>
+
+
+
+
+
+        </main>
+
+    </body>
+{% endblock %}

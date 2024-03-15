@@ -1,0 +1,139 @@
+{% extends '_base.html' %}
+{% block title %}Yelp Data Home{% endblock %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yelp Data</title>
+    {% block styles %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='yelp_data_home_style.css')}}">
+    {% endblock %}
+</head>
+
+<body>
+    <main>
+        {% block content %}
+        <h2>Yelp Data: A Closer Look</h2>
+
+        <p> The purpose of this analysis was to see if the restaurant data from Yelp can help predict the average
+            housing price of zip codes around the United States. The question being asked and hopefully answered is:
+            Are restaurants a good indicator of the affluence of an area? And on a more advanced level: Are restaurants
+            a predictor of an increase or decrease in the average cost of an area? This is to say are restaurants the
+            first step of gentrification? Are there investment opportunities if a bunch of popular restaurants are
+            popping up in a specific area of town? </p>
+
+        <p>The second half of this questions is tricky to answer as data over time is needed but it is the end goal and
+            was the motivation for this analysis. While this question was not answered here (again need historical data
+            over time) the analysis was able to provide some insights into the restaurant data vs housing prices. The
+            created model was overall relatively accurate and better than expected. There is still a long way to go to
+            put this to practically use for its initial motivation but it is a step in the right direction. </p>
+
+        <p>Additionally there were a few tools created along the way which already have practical applications and can
+            be used now! None of these were planned but in the analysis process were born as answers to questions that
+            popped up or as a way to more easily visualize the data. The heat map and tag graphs tools to better
+            visualize the data.The search score metric was created in an attempt the Yelp algorithm and determine
+            whether or not is biased? The results for the metric were inconclusive but interesting to say the least.</p>
+
+        <p>All of the results from the analysis can be improved upon. The biggest improvement is to have a more complete
+            data collection process. This would help with many of the problems/shortcomings experienced across the
+            analysis. Despite these difficulties all of the created tools and analysis have at least on result that
+            can be acted on whether that is for more analysis or business based decision making!</p>
+
+        <p>Before getting into the analysis a quick note on how the data was acquired is in order. All data was
+            collected using the Yelp API. It has its positives and negatives. It is relatively easy to get access and
+            get started using. There are plenty of pages of documentation on how to use the API and its limitations. In
+            its most basic form it is a solid source of data from Yelp. These positives should not be understated, it is
+            important that public data be easily available  to the public. However there are some negatives that had a
+            massive impact on the analysis and they have been laid out below. </p>
+
+        <ol>
+            <li>
+                <p><b>Ratings</b> This is by far the the biggest issue with the API. The ratings are rounded to the
+                    nearest half (4.3 is rounded to 4.5 and 4.2 is rounded to 4, etc etc). Why? This leads to a lot of
+                    information being lost and greatly skews Mean and median (median now has an even more limited amount
+                    of options). The stars are surely just an average of the ratings so why are there only 9 options
+                    instead of the 400 possible if it were set to two decimal places? The information is already easily
+                    available and displayed on the site to (one decimal place). What is being gained by sacrificing
+                    accuracy of the rating to people looking at the data?</p>
+            </li>
+
+            <li>
+                <p><b>Odd Observations</b>During the data acquisition process for this project the API calls to US
+                    cities. There were several Non US countries that showed up. In some cases this makes a lot of sense
+                    with Detroit, El Paso, San Diego being large cities on international borders. It is expected to see
+                    some spillover as the cities on the other side of the border (Windsor, Juarez, and Tijuana) are only
+                    different names because of some arbitrary line. However getting results for Argentina, Malaysia, the
+                    Philippines, etc is… bizarre, again it is easy to filter these out but what were they doing there in
+                    the first place?? As an example: </p>
+
+                <table border="1">
+                    <tr>
+                        <th>Name</th>
+                        <th>Review Count</th>
+                        <th>Rating</th>
+                        <th>Price</th>
+                        <th>Zip Code</th>
+                        <th>Country</th>
+                        <th>State</th>
+                    </tr>
+                    <tr>
+                        <td>Kokonut Grill</td>
+                        <td>363</td>
+                        <td>4</td>
+                        <td>2</td>
+                        <td>23220</td>
+                        <td>VI</td>
+                        <td>VA</td>
+                    </tr>
+                </table>
+
+                <p>Where Virginia (VA) is listed as a state of the Virgin Islands (VI). All of the other information is
+                    correct: the zip code, coordinates, address. So why and how did the Virgin Islands end up as the
+                    country?? As mentioned these observations are easy enough to filter out, the reason it is a problem
+                    is because it is unclear whether or not the data observed in these is mislabeled on the front or
+                    back end (maybe both). Are these legitimate observations that should be included in the analysis? Or
+                    did these observations somehow slip through the cracks and should they be ignored? For this analysis
+                    the later was chosen. </p>
+
+            </li>
+
+            <li>
+                <p><b>Mismatching Columns</b>  This is a quality of life issue. For the most part all of the columns
+                    came in the same order when using the API, However in about 25% of cases the price column was moved
+                    from being 7th in the table to second to last. Most cities had it 7th but there were plenty of
+                    cities which had it in the second to last position. For example San Antonio and Houston both had it
+                    second to last but Dallas had it in its normal 7th position. Nashville had it second to last but
+                    Memphis had its normal 7th position. San Francisco had it 7th and San Diego had it second to last.
+                    You get the idea. There was seemingly no way to predict which cities would be in which format. It
+                    was by state, latitude or longitude. The unpredictability is frustrating and makes this more
+                    difficult for the end user, especially for beginners.</p>
+            </li>
+
+            <li>
+                <p><b>API Limitations</b>  The last point to be addressed about this project’s interaction with the Yelp
+                    API is the limitations. This is not a criticism of the API rather a statement on the dataset
+                    was formed from the collection process.  On the “standard” version of the API there is a limitation
+                    to the amount of ‘calls’ that can be made to the API. Essentially one computer can only make so many
+                    requests in a day/month so it does not crash the entire system. Makes sense this is great on many
+                    levels. What is a bit more bizarre is there is no way to (at least that was found for this project)
+                    to pick up at the last save point from the data retrieval. Take New York for example. The API is
+                    called and run for the first x (Say 2000) observation.  This data is received, saved and processed.
+                    However trying to get the next 2000 observations proved to be difficult in fact it was not able to
+                    be done. Impossible, probably not, but many different approaches were tried and none of the them
+                    were successful. All of this is to say this dataset is comprised of the first X amount of
+                    observations from each city that was called. </p>
+            </li>
+        </ol>
+
+        <p>Again nothing is perfect, no one is expecting this.  Most of this data is scrapped from each vendors website
+            and if it is copied as it appears exactly. However, from an ease of use and analysis perspective these are
+            few things that can be relatively easily cleaned up. In an ideal world APIs could be used by anyone!
+            Not just those who can code. </p>
+
+
+
+
+    </main>
+
+</body>
+
+{% endblock %}

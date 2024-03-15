@@ -1,0 +1,164 @@
+{% extends '_base.html' %}
+{% block title %}Tag Graph Tool{% endblock %}
+{% block content %}
+    <head>
+        <link rel="stylesheet" href="{{ url_for('static', filename='yelp_tag_graph_tool_style.css')}}">
+    </head>
+
+    <body>
+        <main>
+            <h1> Tag Graph Tool</h1>
+
+            <p> Welcome to the Tag Graph Tool. The purpose of this tool is to provide visualization to the most popular
+                types of restaurants in a given area. There are three different graphs one each for State, City and Zip
+                Code. Each graph works the same just chose option(s) from the selection box and hit the "Generate Graph"
+                button. For a more in depth guide please see the Jacksonville Example!
+            </p>
+
+            <div class="graphs-container">
+                <div class = "form-section">
+                    <div class = "form-container">
+                         <form method="post" action="/YelpData/tag_graph_tool" class="form" data-form-type="states">
+                             <input type="hidden" name='form_type' value='states'>
+                             <div class = form-elements>
+                                <label for="target_states">Select Target States:</label>
+                                <select name="target_states" multiple>
+                                    {% for state in states %}
+                                      <option value="{{ state }}">{{ state }}</option>
+                                    {% endfor %}
+                                </select>
+                                <button type="submit">Generate Graph</button>
+                             </div>
+                         </form>
+                         <div class="plotly-graph-container" id="plotly-graph-states"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <script>
+                    // JavaScript to handle Plotly graph updates
+                    const form = document.querySelector('form');
+                    form.addEventListener('submit', async function (event) {
+                        event.preventDefault();
+                        console.log("Form submitted");
+
+                        const formData = new FormData(form);
+                        const response = await fetch('/YelpData/tag_graph_tool', { method: 'POST', body: formData });
+
+                        if (response.ok) {
+                            console.log("Response received successfully");
+                            const graphData = await response.json();
+                            console.log("Graph data:", graphData);
+                            // Plotly.react('plotly-graph-states', graphData);
+
+                        // Find the corresponding graph container
+                            const graphContainerId = `plotly-graph-${form.getAttribute('data-form-type')}`;
+                            const graphContainer = document.getElementById(graphContainerId);
+
+                            if (graphContainer) {
+                                Plotly.react(graphContainerId, graphData);
+                            } else {
+                                console.error("Graph container not found:", graphContainerId);
+                            }
+
+                        } else {
+                            console.error("Error in response:", response);
+                        }
+                    });
+                </script>
+            </div>
+
+            <div class="graphs-container">
+                <div class = "form-container">
+                    <form method="post" action="/YelpData/tag_graph_tool" style="text-align: center;" data-form-type="cities">
+                        <input type = "hidden" name = 'form_type' value = 'cities'>
+                        <div class = form-elements>
+                            <label for="target_cities">Select Target Cities:</label>
+                            <select name="target_cities" multiple>
+                                {% for city in cities %}
+                                    <option value="{{ city }}">{{ city }}</option>
+                                {% endfor %}
+                            </select>
+                            <button type="submit" style="margin-top: 20px;">Generate Graph</button>
+                        </div>
+                    </form>
+
+                    <div class="plotly-graph-container" id="plotly-graph-cities"></div>
+                </div>
+            </div>
+
+            <div>
+                <script>
+                    const formCities = document.querySelector('form[name="form_cities"]');
+                    formCities.addEventListener('submit', async function (event) {
+                        event.preventDefault();
+                        console.log("Form submitted");
+
+                        const formData = new FormData(formCities);
+                        const response = await fetch('/YelpData/tag_graph_tool', { method: 'POST', body: formData });
+
+                        if (response.ok) {
+                            console.log("Response received successfully");
+                            const graphData = await response.json();
+                            console.log("Graph data:", graphData);
+                            Plotly.react('plotly-graph-cities', graphData);
+                        } else {
+                            console.error("Error in response:", response);
+                        }
+                    });
+
+                </script>
+            </div>
+
+            <div class="graphs-container">
+                <div class = "form-container">
+                    <form method="post" action="/YelpData/tag_graph_tool" style="text-align: center;" data-form-type="zip_codes">
+                        <input type = "hidden" name = 'form_type' value = 'zip_codes'>
+                        <div class = form-elements>
+                            <label for="target_zip_codes">Select Target Zip Codes:</label>
+                            <select name="target_zip_codes" multiple>
+                                {% for zip_code in zip_codes %}
+                                    <option value="{{ zip_code }}">{{ zip_code }}</option>
+                                {% endfor %}
+                            </select>
+                            <button type="submit" style="margin-top: 20px;">Generate Graph</button>
+                        </div>
+                    </form>
+
+                    <div class="plotly-graph-container" id="plotly-graph-zip_codes"></div>
+                </div>
+            </div>
+
+            <div>
+                <script>
+                    document.querySelectorAll('form').forEach(form => {
+                        form.addEventListener('submit', async function (event) {
+                            event.preventDefault();
+
+                            const formData = new FormData(form);
+                            const response = await fetch('/YelpData/tag_graph_tool', { method: 'POST', body: formData });
+
+                            if (response.ok) {
+                                const graphData = await response.json();
+                                const graphContainerId = `plotly-graph-${form.getAttribute('data-form-type')}`;
+                                const existingGraph = document.getElementById(graphContainerId);
+
+                                if (existingGraph) {
+                                    Plotly.react(graphContainerId, graphData);
+                                } else {
+                                    const newGraphContainer = document.createElement('div');
+                                    newGraphContainer.id = graphContainerId;
+                                    document.body.appendChild(newGraphContainer);
+                                    Plotly.newPlot(graphContainerId, graphData);
+                                }
+                            } else {
+                                console.error("Error in response:", response);
+                            }
+                        });
+                    });
+                </script>
+            </div>
+        </main>
+    </body>
+{% endblock %}

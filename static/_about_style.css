@@ -1,0 +1,40 @@
+/* Apply a flexbox layout to the entire content area */
+/* body and main */
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;; /* Set a minimum height for the content area */
+    font-family: sans-serif;
+}
+
+main{
+    width: 85%;
+    margin: 0 auto;
+    padding: 2%;
+}
+/* headers */
+h1{
+    font-size: 48px;
+}
+
+h2 {
+    text-align: center; /* Center the h2 tags */
+    margin-top: 4%; /* Add 10px padding after h2 tags */
+    font-size: 36px;
+
+}
+
+/* Add padding after h1 and h2 tags */
+h1, h2 {
+    text-align: center; /* Center the header tags */
+    margin-bottom: 2.5%; /* Add space between headers */
+}
+
+/* p tags */
+p {
+    font-size: 20px; /* Set the desired font size for paragraphs */
+    line-height: 1.5; /* Adjust the line height as needed */
+    margin-top: 2%; /* Add space between h2 and p */
+}
+
+

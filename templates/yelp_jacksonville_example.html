@@ -1,0 +1,206 @@
+{% extends '_base.html' %}
+{% block title %}Jacksonville Example - Tag Graph Tool{% endblock %}
+{% block content %}
+<head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='yelp_jacksonville_example_style.css')}}">
+</head>
+
+<body>
+    <main>
+
+        <h1>The Tag Graph Tool</h1>
+
+        <h2>Jacksonville: Example</h2>
+
+        <p>
+           The tool gives the user the ability to see the most common tags in any state(s), City(s) or zip code(s).
+           All at thee same time. As an example; take a quick look at Jacksonville, FL. Jacksonville is the biggest
+           city in Florida in both population and size (by quite a bit). To build intuition on expectations use the
+           state tag graph to select Florida and click submit. This will show the top ten most common tags
+           (in our case think of a tag as the type of restaurant).
+        </p>
+
+
+        <div class="graph-container" id="state-container">
+            <div class="form-section">
+                <div class="form-elements">
+                    <form class="form" method="post" action="/YelpData/tag_graph_tool/jacksonville_example" data-form-type="states">
+                        <input type="hidden" name='form_type' value='states'>
+                        <label for="target_states">Select Florida:</label>
+                        <select name="target_states">
+                            <option value='FL'>FL</option>
+                        </select>
+                        <button type="submit">Generate Graph</button>
+                    </form>
+                </div>
+            </div>
+            <div class="plotly-graph-container" id="plotly-graph-states"></div>
+        </div>
+
+        <!-- Script for handling state graph updates -->
+        <script>
+            // JavaScript to handle Plotly graph updates for states
+            const formStates = document.querySelector('form[data-form-type="states"]');
+            const graphContainerId = 'plotly-graph-states';
+
+            formStates.addEventListener('submit', async function (event) {
+                event.preventDefault();
+
+                const formData = new FormData(formStates);
+                const response = await fetch('/YelpData/tag_graph_tool/jacksonville_example', { method: 'POST', body: formData });
+
+                if (response.ok) {
+                    const graphData = await response.json();
+
+                    // Remove existing graph if any
+                    const existingGraph = document.getElementById(graphContainerId);
+                    if (existingGraph) {
+                        existingGraph.remove();
+                    }
+
+                    // Create a new graph container
+                    const newGraphContainer = document.createElement('div');
+                    newGraphContainer.id = graphContainerId;
+                    document.getElementById('state-container').appendChild(newGraphContainer);
+
+                    // Plot the new graph
+                    Plotly.newPlot(graphContainerId, graphData.data, graphData.layout);
+                } else {
+                    console.error("Error in response:", response);
+                }
+            });
+        </script>
+
+        <p>
+            By itself, it is hard to draw any actionable conclusions from the above graph. But it is a good starting
+            point and builds intuition as the analysis progresses.Moving on to the city tag graph, select Jacksonville
+            from the dropdown and click submit. This will show the ten most common tags in Jacksonville.
+        </p>
+
+        <div class="graph-container" id="city-container">
+            <div class="form-section">
+                <div class="form-elements">
+                    <form class="form" method="post" action="/YelpData/tag_graph_tool/jacksonville_example" data-form-type="cities">
+                        <input type="hidden" name='form_type' value='cities'>
+                        <label for="target_cities">Select Jacksonville:</label>
+                        <select name="target_cities" style="max-height: 20px;">
+                            <option value='Jacksonville'>Jacksonville</option>
+                        </select>
+                        <button type="submit">Generate Graph</button>
+                    </form>
+                </div>
+            </div>
+            <div class="plotly-graph-container" id="plotly-graph-cities"></div>
+        </div>
+
+        <!-- Script for handling city graph updates -->
+        <script>
+            const formCities = document.querySelector('form[data-form-type="cities"]');
+            const graphContainerIdCities = 'plotly-graph-cities';
+
+            formCities.addEventListener('submit', async function (event) {
+                event.preventDefault();
+
+                const formData = new FormData(formCities);
+                const response = await fetch('/YelpData/tag_graph_tool/jacksonville_example', { method: 'POST', body: formData });
+
+                if (response.ok) {
+                    const graphData = await response.json();
+
+                    // Remove existing graph if any
+                    const existingGraph = document.getElementById(graphContainerIdCities);
+                    if (existingGraph) {
+                        existingGraph.remove();
+                    }
+
+                    // Create a new graph container
+                    const newGraphContainer = document.createElement('div');
+                    newGraphContainer.id = graphContainerIdCities;
+                    document.getElementById('city-container').appendChild(newGraphContainer);
+
+                    // Plot the new graph
+                    Plotly.newPlot(graphContainerIdCities, graphData.data, graphData.layout);
+                } else {
+                    console.error("Error in response:", response);
+                }
+            });
+        </script>
+
+        <p>
+            Now there is a comparison point. Are there any major differences between the most common tags in
+            Jacksonville and in Florida?Food Trucks and Chicken Wings are in the top ten and both Pizza and New American
+            are out of the top ten? Is this significant? Depends on the relative importance of the four genres of food.
+            To some this could be make or break (say the owner of a food truck) to others it makes no difference. For
+            those whom it is important to this would be a great jumping off point for further analysis (For example
+            someone interested in opening up a food truck).
+        </p>
+
+        <p>
+            Most cities are subdivided into zip codes to help with logistics. This is great for the analysis because it
+            allows a more narrow view of a smaller area. Take downtown Jacksonville for example. Commonly agreed to be
+            the following zip codes (32202 and 32207). Go ahead and select those from the zip code dropdown and click
+            submit
+        </p>
+
+        <div class="graph-container" id="zip-code-container">
+            <div class="form-section">
+                <div class="form-elements">
+                    <form class="form" method="post" action="/YelpData/tag_graph_tool/jacksonville_example" data-form-type="zip_codes">
+                        <input type="hidden" name='form_type' value='zip_codes'>
+                        <label for="target_zip_codes">Select Zip Codes:</label>
+                        <select name="target_zip_codes" multiple style="max-height: 40px;">
+                            <option value='32202'>32202</option>
+                            <option value='32207'>32207</option>
+                        </select>
+                        <button type="submit" style="margin-top: 20px;">Generate Graph</button>
+                    </form>
+                </div>
+            </div>
+            <div class="plotly-graph-container" id="plotly-graph-zip_codes"></div>
+        </div>
+
+        <!-- Script for handling zip code graph updates -->
+        <script>
+            const formZipCodes = document.querySelector('form[data-form-type="zip_codes"]');
+            const graphContainerIdZipCodes = 'plotly-graph-zip_codes';
+
+            formZipCodes.addEventListener('submit', async function (event) {
+                event.preventDefault();
+
+                const formData = new FormData(formZipCodes);
+                const response = await fetch('/YelpData/tag_graph_tool/jacksonville_example', { method: 'POST', body: formData });
+
+                if (response.ok) {
+                    const graphData = await response.json();
+
+                    // Remove existing graph if any
+                    const existingGraph = document.getElementById(graphContainerIdZipCodes);
+                    if (existingGraph) {
+                        existingGraph.remove();
+                    }
+
+                    // Create a new graph container
+                    const newGraphContainer = document.createElement('div');
+                    newGraphContainer.id = graphContainerIdZipCodes;
+                    document.getElementById('zip-code-container').appendChild(newGraphContainer);
+
+                    // Plot the new graph
+                    Plotly.newPlot(graphContainerIdZipCodes, graphData.data, graphData.layout);
+                } else {
+                    console.error("Error in response:", response);
+                }
+            });
+        </script>
+
+        <p>
+            Are there significant differences here?
+        </p>
+
+        <p>
+            That's it! That is all there is to using this tool. Its purpose is to provide general information on a
+            selected area whether it is a state, city, or zip code. This is a great jumping-off point to start any
+            number of projects, analysis-based or not.
+        </p>
+    </main>
+</body>
+{% endblock %}

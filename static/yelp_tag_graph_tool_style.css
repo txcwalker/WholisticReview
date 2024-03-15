@@ -1,0 +1,85 @@
+/* tag_graph_tool_style.css */
+/* Apply a flexbox layout to the entire content area */
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* Set a minimum height for the content area */
+    font-family: sans-serif;
+}
+
+main{
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+h1, h2 {
+    text-align: center; /* Center the header tags */
+    margin-bottom: 10px; /* Add space between headers */
+}
+
+p {
+    font-size: 16px; /* Set the desired font size for paragraphs */
+    line-height: 1.5; /* Adjust the line height as needed */
+    margin-top: 1%; /* Add space between h2 and p */
+}
+/*css for the graphs */
+.graphs-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 2%;
+}
+
+/* Center the form elements and add spacing */
+/* Apply styles to the form container */
+.form-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
+.form-elements {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+/* CSS for the form and graph containers */
+.form-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+/* Style for the form */
+.form {
+  text-align: center;
+}
+
+/* Style for the label */
+.form label {
+  margin-bottom: 8px;
+}
+
+/* Style for the select dropdown */
+.form select {
+  width: 100px; /* Adjust width as needed */
+  margin-bottom: 16px;
+}
+
+/* Style for the button */
+.form button {
+  margin-top: 12px;
+}
+
+/* Style for the graph container */
+.plotly-graph-container {
+    margin-top: 2%;
+    margin-bottom: 2%;
+    width: 100%; /* Adjust the width as needed */
+    position: relative;
+}

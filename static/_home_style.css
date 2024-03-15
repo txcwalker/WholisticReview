@@ -1,0 +1,31 @@
+/* Apply a flexbox layout to the entire content area */
+/* body and main */
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* Set a minimum height for the content area */
+    font-family: sans-serif;
+    margin: 0;
+}
+
+main{
+    max-width: 85%;
+    margin: auto;
+    padding: 2%;
+}
+
+/* headers */
+h1, h2 {
+    text-align: center; /* Center the header tags */
+    margin-bottom: 10px; /* Add space between headers */
+}
+
+/* Increase font size for h1 */
+h1 {
+  font-size: 52px; /* You can adjust the size to your preference */
+}
+
+/* Create space between h1 and h2 */
+h1 + h2 {
+  margin-top: 80px; /* You can adjust the margin to add more or less space */
+}
