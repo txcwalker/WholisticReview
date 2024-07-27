@@ -3,5 +3,5 @@
 This is the code for the website I maintain to showcase my projects in a more visual capacity. For now the Yelp/Zillow project is complete. The Bestball and Flight projects are still in the data acquistion process.
 
 
-Link to site 198.58.101.170
+Link to site 198.58.101.170  
 If link does not work please feel free to contact me at txcwalker@gmail.com
